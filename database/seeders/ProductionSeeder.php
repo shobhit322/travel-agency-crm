@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\SubscriptionPlan;
 use App\Models\SuperAdmin;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 use Spatie\Permission\Models\Role;
@@ -21,6 +22,8 @@ use Spatie\Permission\PermissionRegistrar;
  */
 class ProductionSeeder extends Seeder
 {
+    use WithoutModelEvents;
+
     private const MINIMUM_PASSWORD_LENGTH = 12;
 
     public function run(): void

@@ -31,10 +31,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --no-progress --no-scripts --prefer-dist --optimize-autoloader
-# TEMPORARY: the S3 driver behind OBJECT_STORAGE=s3 (config/filesystems.php) is not in composer.lock yet.
-# Run `composer require league/flysystem-aws-s3-v3 "^3.0"` where Packagist is reachable, commit the
-# updated composer.json and composer.lock, then delete this line.
-RUN composer require league/flysystem-aws-s3-v3:^3.0 --update-no-dev --no-interaction --no-progress --no-scripts
+# The S3 driver behind OBJECT_STORAGE=s3 (config/filesystems.php) must come from composer.lock, so
+# the build is reproducible. Fail here, with a clear message, instead of at the first file upload.
+RUN composer show league/flysystem-aws-s3-v3 > /dev/null 2>&1 \
+    || { echo 'composer.lock does not contain league/flysystem-aws-s3-v3. Run: composer require league/flysystem-aws-s3-v3 "^3.0" --no-scripts, then commit composer.json and composer.lock.' >&2; exit 1; }
 
 COPY . .
 COPY --from=assets /app/public/build ./public/build

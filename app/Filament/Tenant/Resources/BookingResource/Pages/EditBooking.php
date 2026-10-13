@@ -8,6 +8,7 @@ use App\Filament\Tenant\Resources\BookingResource\Concerns\SyncsBookingExtras;
 use App\Filament\Tenant\Resources\InvoiceResource;
 use App\Models\Booking;
 use App\Models\Invoice;
+use App\Services\BookingDocumentArchive;
 use App\Services\BookingInvoicing;
 use App\Services\BookingPricing;
 use App\Services\BookingSchedule;
@@ -20,9 +21,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use ZipArchive;
 
 class EditBooking extends EditRecord
 {
@@ -140,21 +139,13 @@ class EditBooking extends EditRecord
     {
         /** @var Booking $booking */
         $booking = $this->record;
-        $disk = Storage::disk('local');
-        $zipPath = tempnam(sys_get_temp_dir(), 'booking-docs');
-        $zip = new ZipArchive;
-        $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $zipPath = app(BookingDocumentArchive::class)->build($booking);
 
-        foreach ($booking->documents()->with('traveler')->get() as $index => $document) {
-            if (! $disk->exists($document->file_path)) {
-                continue;
-            }
+        if ($zipPath === null) {
+            Notification::make()->title('No documents to download')->warning()->send();
 
-            $folder = $document->traveler?->name ?? 'Booking';
-            $zip->addFile($disk->path($document->file_path), sprintf('%s/%s-%d-%s', $folder, $document->doc_type, $index + 1, basename($document->file_path)));
+            return null;
         }
-
-        $zip->close();
 
         return response()->download($zipPath, "booking-{$booking->getKey()}-documents.zip")->deleteFileAfterSend();
     }
