@@ -1,5 +1,13 @@
 <?php
 
+// On Vercel the container filesystem is ephemeral and not shared between instances, so the two disks
+// the application references by name — "local" (private files such as passports and booking
+// documents) and "public" (branding and avatars) — are pointed at S3-compatible buckets instead.
+// No call site changes: set OBJECT_STORAGE=s3 plus the AWS_* variables in .env.vercel.example.
+// Livewire then uploads straight from the browser to the private bucket, which also avoids
+// Vercel's 4.5 MB request body limit. Unset locally, so Docker and tests keep using the disk.
+$objectStorage = env('OBJECT_STORAGE') === 's3';
+
 return [
 
     /*
@@ -30,7 +38,18 @@ return [
 
     'disks' => [
 
-        'local' => [
+        'local' => $objectStorage ? [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'auto'),
+            'bucket' => env('AWS_PRIVATE_BUCKET'),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ] : [
             'driver' => 'local',
             'root' => storage_path('app/private'),
             'serve' => true,
@@ -38,7 +57,19 @@ return [
             'report' => false,
         ],
 
-        'public' => [
+        'public' => $objectStorage ? [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'auto'),
+            'bucket' => env('AWS_PUBLIC_BUCKET'),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'url' => env('AWS_PUBLIC_URL'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ] : [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',

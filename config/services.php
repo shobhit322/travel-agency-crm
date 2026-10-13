@@ -35,6 +35,12 @@ return [
         ],
     ],
 
+    // Vercel Cron Jobs call GET /internal/cron/{task} (see App\Http\Controllers\CronController)
+    // with "Authorization: Bearer <CRON_SECRET>". Left empty, the endpoint is disabled (404).
+    'cron' => [
+        'secret' => env('CRON_SECRET'),
+    ],
+
     // PayPal and HBL credentials are tenant-scoped, not global — see
     // App\Filament\Tenant\Pages\PaymentGateways and the tenant_payment_gateways table.
     // These are only read by Database\Seeders\HblUatPaymentGatewaySeeder, to put HBL's UAT test

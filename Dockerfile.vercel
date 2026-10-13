@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1
+#
+# Image for Vercel's Container runtime (Beta). Vercel finds this file by name, builds the image on
+# deploy and routes traffic to it (see vercel.json). docker-compose keeps using ./Dockerfile.
+#
+# The container has no durable disk and no long-running worker, so everything that must persist
+# lives outside it: PostgreSQL (sessions, cache and data), S3-compatible buckets (uploads), and
+# Vercel Cron -> /internal/cron/* (scheduled commands). See .env.vercel.example.
+
+FROM node:22-alpine AS assets
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY resources ./resources
+COPY public ./public
+COPY vite.config.js ./
+RUN npm run build
+
+FROM dunglas/frankenphp:1-php8.4-bookworm
+
+RUN install-php-extensions pdo_pgsql intl zip gd exif gmp opcache \
+    && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && printf 'memory_limit=512M\n' > "$PHP_INI_DIR/conf.d/zz-app.ini"
+
+WORKDIR /app
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --no-scripts --prefer-dist --optimize-autoloader
+# TEMPORARY: the S3 driver behind OBJECT_STORAGE=s3 (config/filesystems.php) is not in composer.lock yet.
+# Run `composer require league/flysystem-aws-s3-v3 "^3.0"` where Packagist is reachable, commit the
+# updated composer.json and composer.lock, then delete this line.
+RUN composer require league/flysystem-aws-s3-v3:^3.0 --update-no-dev --no-interaction --no-progress --no-scripts
+
+COPY . .
+COPY --from=assets /app/public/build ./public/build
+COPY Caddyfile /etc/frankenphp/Caddyfile
+
+RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && composer dump-autoload --no-dev --classmap-authoritative --no-scripts \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp \
+    && chown -R www-data:www-data /config/caddy /data/caddy
+
+# Safe defaults; real values come from the Vercel project's environment variables.
+ENV PORT=80 \
+    APP_ENV=production \
+    APP_DEBUG=false \
+    LOG_CHANNEL=stderr \
+    SESSION_DRIVER=database \
+    SESSION_SECURE_COOKIE=true \
+    CACHE_STORE=database \
+    QUEUE_CONNECTION=sync \
+    FILESYSTEM_DISK=local
+
+USER www-data
+
+CMD ["frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile"]

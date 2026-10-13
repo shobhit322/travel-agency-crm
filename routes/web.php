@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CronController;
 use App\Http\Controllers\CustomerEmailChangeController;
 use App\Http\Controllers\ImpersonationController;
 use App\Http\Controllers\Payments\CheckoutController;
@@ -19,6 +20,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Scheduled work on Vercel, where no `schedule:work` process can run. Bearer-token protected.
+Route::get('/internal/cron/{task}', CronController::class)
+    ->whereIn('task', CronController::TASKS)
+    ->middleware('throttle:30,1')
+    ->name('internal.cron');
 
 Route::middleware([EnsurePlatformAvailable::class, ResolveAgencySubdomain::class, 'auth:customer', ResolveTenant::class])
     ->prefix('portal/pay')

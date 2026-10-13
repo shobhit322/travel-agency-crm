@@ -1,0 +1,50 @@
+name: Vercel database
+
+# Manual only. Vercel's container runtime should not run migrations at startup (several instances can
+# boot at once), so schema changes are applied from here, against the production database, before or
+# right after a deploy that needs them. Add the secrets below under Settings > Secrets and variables > Actions.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bootstrap_platform_admin:
+        description: 'Also run ProductionSeeder (first run only: creates the Super Admin from PLATFORM_ADMIN_* secrets)'
+        type: boolean
+        default: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: production
+      APP_KEY: ${{ secrets.APP_KEY }}
+      DB_CONNECTION: pgsql
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_SSLMODE: require
+      PLATFORM_ADMIN_NAME: ${{ secrets.PLATFORM_ADMIN_NAME }}
+      PLATFORM_ADMIN_EMAIL: ${{ secrets.PLATFORM_ADMIN_EMAIL }}
+      PLATFORM_ADMIN_PASSWORD: ${{ secrets.PLATFORM_ADMIN_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, intl, zip, gd, exif, gmp, mbstring
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-dev --no-interaction --no-progress --no-scripts --prefer-dist
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Bootstrap the platform admin
+        if: ${{ inputs.bootstrap_platform_admin }}
+        run: php artisan db:seed --class=ProductionSeeder --force
