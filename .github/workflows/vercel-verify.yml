@@ -1,0 +1,120 @@
+name: Vercel verify
+
+# Verification for the Vercel container patch, run on GitHub's runners (which can reach Packagist and Docker):
+#  1. lock   - if composer.lock lacks league/flysystem-aws-s3-v3, add it and commit the result back to this branch
+#  2. tests  - PHP 8.4, Pest (in-memory SQLite, as phpunit.xml configures), Pint (informational) and the Vite build
+#  3. docker - builds Dockerfile.vercel, checks the S3 adapter is in the image, boots it and requests /up
+# It never deploys and uses no secrets. Run it from the Actions tab (Run workflow) or by pushing to vercel-deploy.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [vercel-deploy]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vercel-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, zip, gd, exif, gmp, mbstring, pdo_pgsql
+          tools: composer:v2
+
+      - name: Add the S3 driver to composer.json and composer.lock when missing
+        run: |
+          if grep -q '"name": "league/flysystem-aws-s3-v3"' composer.lock; then
+            echo "league/flysystem-aws-s3-v3 is already locked."
+          else
+            composer require league/flysystem-aws-s3-v3 "^3.0" --no-scripts --no-interaction --no-progress
+          fi
+          composer validate --no-check-publish
+
+      - name: Commit the lock file back
+        run: |
+          if git diff --quiet -- composer.json composer.lock; then
+            echo "Nothing to commit."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add composer.json composer.lock
+            git commit -m "Lock league/flysystem-aws-s3-v3 for the S3 object storage disks [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
+  tests:
+    needs: lock
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, zip, gd, exif, gmp, mbstring, pdo_sqlite, pdo_pgsql
+          tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist
+          npm ci --no-audit --no-fund
+
+      - name: Prepare the application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Pest
+        run: php artisan config:clear && vendor/bin/pest --compact
+
+      - name: Pint (informational)
+        continue-on-error: true
+        run: vendor/bin/pint --test
+
+  docker:
+    needs: lock
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Build Dockerfile.vercel
+        run: docker build -f Dockerfile.vercel -t travel-vercel .
+
+      - name: S3 adapter is present in the image
+        run: |
+          docker run --rm travel-vercel php -r 'require "vendor/autoload.php"; exit(class_exists(League\Flysystem\AwsS3V3\AwsS3V3Adapter::class) ? 0 : 1);'
+
+      - name: Boot the container and request /up
+        run: |
+          KEY="base64:$(openssl rand -base64 32)"
+          docker run -d --name app -p 8080:80 -e APP_KEY="$KEY" -e APP_URL=https://example.test travel-vercel
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/up || true)
+            echo "attempt $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 2
+          done
+          docker logs app
+          exit 1
