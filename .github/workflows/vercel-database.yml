@@ -20,6 +20,8 @@ jobs:
       APP_ENV: production
       APP_KEY: ${{ secrets.APP_KEY }}
       DB_CONNECTION: pgsql
+      # Either set the single DB_URL secret (a full connection string), or the DB_HOST/PORT/DATABASE/USERNAME/PASSWORD ones.
+      DB_URL: ${{ secrets.DB_URL }}
       DB_HOST: ${{ secrets.DB_HOST }}
       DB_PORT: ${{ secrets.DB_PORT }}
       DB_DATABASE: ${{ secrets.DB_DATABASE }}
