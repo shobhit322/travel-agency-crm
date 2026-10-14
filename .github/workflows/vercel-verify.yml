@@ -2,8 +2,9 @@ name: Vercel verify
 
 # Verification for the Vercel container patch, run on GitHub's runners (which can reach Packagist and Docker):
 #  1. lock   - if composer.lock lacks league/flysystem-aws-s3-v3, add it and commit the result back to this branch
-#  2. tests  - PHP 8.4, Pest (in-memory SQLite, as phpunit.xml configures), Pint (informational) and the Vite build
-#  3. docker - builds Dockerfile.vercel, checks the S3 adapter is in the image, boots it and requests /up
+#  2. style  - Pint on the PHP files this patch touched (fixes are committed back); whole-repo Pint is informational
+#  3. tests  - PHP 8.4, Pest (in-memory SQLite, as phpunit.xml configures) and the Vite build
+#  4. docker - builds Dockerfile.vercel, checks the S3 adapter is in the image, boots it and requests /up
 # It never deploys and uses no secrets. Run it from the Actions tab (Run workflow) or by pushing to vercel-deploy.
 
 on:
@@ -53,8 +54,56 @@ jobs:
             git push origin HEAD:${{ github.ref_name }}
           fi
 
-  tests:
+  style:
     needs: lock
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, zip, gd, exif, gmp, mbstring, pdo_pgsql
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Format the PHP files this patch added or changed
+        run: |
+          git diff --name-only --diff-filter=AM 8230d80 HEAD -- '*.php' > patch-php-files.txt
+          echo "Files covered: $(wc -l < patch-php-files.txt)"
+          vendor/bin/pint $(cat patch-php-files.txt)
+          if git diff --quiet; then
+            echo "Already formatted."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -am "Apply Pint formatting to the Vercel patch files [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+            echo "::notice title=Pint::Formatting fixes were committed to the branch"
+          fi
+
+      - name: Pint is clean on the patch files
+        run: vendor/bin/pint --test $(cat patch-php-files.txt)
+
+      - name: Whole-repository Pint (informational)
+        continue-on-error: true
+        run: |
+          vendor/bin/pint --test --format json > pint-all.json || true
+          python3 - <<'PY'
+          import json
+          d = json.load(open('pint-all.json'))
+          files = [f['name'] for f in d.get('files', [])]
+          print(f"Whole-repo Pint: {len(files)} file(s) need formatting")
+          print(f"::notice title=Pint whole repo::{len(files)} file(s) need formatting: " + ", ".join(files[:40]))
+          PY
+
+  tests:
+    needs: style
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -85,14 +134,28 @@ jobs:
         run: npm run build
 
       - name: Pest
-        run: php artisan config:clear && vendor/bin/pest --compact
+        run: |
+          php artisan config:clear
+          vendor/bin/pest --compact --log-junit junit.xml
 
-      - name: Pint (informational)
-        continue-on-error: true
-        run: vendor/bin/pint --test
+      - name: Report Pest totals
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          cases = list(ET.parse('junit.xml').getroot().iter('testcase'))
+          def bad(c, tag): return c.find(tag) is not None
+          failed = sum(bad(c, 'failure') or bad(c, 'error') for c in cases)
+          skipped = sum(bad(c, 'skipped') for c in cases)
+          print(f"::notice title=Pest totals::{len(cases)} tests, {failed} failed, {skipped} skipped")
+          for needle in ('BookingDocumentArchiveTest', 'CronEndpointTest', 'ProductionSeederTest'):
+              mine = [c for c in cases if needle in (c.get('file') or '') + (c.get('classname') or '')]
+              mine_failed = sum(bad(c, 'failure') or bad(c, 'error') for c in mine)
+              print(f"::notice title=Pest {needle}::{len(mine)} tests ran, {mine_failed} failed")
+          PY
 
   docker:
-    needs: lock
+    needs: style
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
