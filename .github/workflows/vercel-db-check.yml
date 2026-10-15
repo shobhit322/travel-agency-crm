@@ -1,0 +1,97 @@
+name: Vercel database check (read-only)
+
+# Diagnostic only. Uses the same DB_URL / APP_KEY secrets as "Vercel database" but writes nothing:
+# it reports the SHAPE of the two secrets (never their values) and runs `php artisan migrate:status`
+# (a read), with the host, user, password and database name redacted from any error text.
+# Runs only when this file changes, on vercel-deploy.
+
+on:
+  push:
+    branches: [vercel-deploy]
+    paths: ['.github/workflows/vercel-db-check.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: production
+      APP_KEY: ${{ secrets.APP_KEY }}
+      DB_CONNECTION: pgsql
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_SSLMODE: require
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, intl, zip, gd, exif, gmp, mbstring
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-dev --no-interaction --no-progress --no-scripts --prefer-dist
+
+      - name: Shape of the secrets (no values printed)
+        run: |
+          php -r '
+            $u = (string) getenv("DB_URL");
+            $p = parse_url($u) ?: [];
+            $q = [];
+            parse_str($p["query"] ?? "", $q);
+            $host = $p["host"] ?? "";
+            $shape = [
+              "DB_URL_length" => strlen($u),
+              "DB_URL_empty" => $u === "",
+              "scheme" => $p["scheme"] ?? "(none)",
+              "parse_ok" => $p !== [],
+              "has_whitespace_or_quote" => (bool) preg_match("/[\\s\"\x27]/", $u),
+              "contains_variable_name_text" => stripos($u, "DATABASE_URL") !== false || stripos($u, "DB_URL") !== false,
+              "host_present" => $host !== "",
+              "host_is_neon" => str_ends_with($host, ".neon.tech"),
+              "host_is_pooler" => str_contains($host, "-pooler"),
+              "port" => $p["port"] ?? "(none - default 5432)",
+              "user_present" => ($p["user"] ?? "") !== "",
+              "password_present" => ($p["pass"] ?? "") !== "",
+              "database_present" => ltrim($p["path"] ?? "", "/") !== "",
+              "query_keys" => implode(",", array_keys($q)),
+            ];
+            $k = (string) getenv("APP_KEY");
+            $raw = str_starts_with($k, "base64:") ? base64_decode(substr($k, 7), true) : false;
+            $shape["APP_KEY_empty"] = $k === "";
+            $shape["APP_KEY_has_base64_prefix"] = str_starts_with($k, "base64:");
+            $shape["APP_KEY_decoded_bytes"] = $raw === false ? "(not valid base64)" : strlen($raw);
+            $shape["DB_PORT_env_is_empty_string"] = getenv("DB_PORT") === "";
+            $pairs = [];
+            foreach ($shape as $n => $v) { $pairs[] = $n . "=" . (is_bool($v) ? ($v ? "yes" : "no") : $v); }
+            echo "::notice title=Secret shape (no values)::" . implode(" | ", $pairs) . PHP_EOL;
+          '
+
+      - name: Read-only connection test (migrate:status), redacted
+        run: |
+          set +e
+          php artisan migrate:status > status.txt 2>&1
+          code=$?
+          CODE=$code php -r '
+            $t = file_get_contents("status.txt");
+            $p = parse_url((string) getenv("DB_URL")) ?: [];
+            foreach (["host", "user", "pass"] as $f) {
+              $v = $p[$f] ?? "";
+              if ($v !== "") { $t = str_replace([$v, rawurldecode($v)], "***", $t); }
+            }
+            $db = ltrim($p["path"] ?? "", "/");
+            if ($db !== "") { $t = str_replace($db, "***", $t); }
+            $lines = array_values(array_filter(array_map("trim", explode("\n", $t))));
+            echo "::notice title=migrate:status output (redacted)::exit=" . getenv("CODE") . " | " . substr(str_replace(["\r", "\n"], " ", implode(" / ", array_slice($lines, 0, 6))), 0, 600) . PHP_EOL;
+          '
+          exit 0
