@@ -79,7 +79,11 @@ test('the admin login page renders VI Studio branding, demo request action, and 
 
     $response->assertOk()
         ->assertSee('VI Studio Travel CRM')
-        ->assertSee('vi-open-login-demo-modal')
+        ->assertSee('x-data="{ showDemoModal: false }"', false)
+        ->assertSee('x-show="showDemoModal"', false)
+        ->assertSee('x-cloak', false)
+        ->assertSee('@click="showDemoModal = true"', false)
+        ->assertSee('@click="showDemoModal = false"', false)
         ->assertSee('vi-auth-btn-icon')
         ->assertSee('vi-auth-link-icon')
         ->assertSee('width="16"', false)

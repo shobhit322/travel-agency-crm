@@ -1,6 +1,6 @@
 {{-- VI Studio Travel CRM — Admin Login Page Demo Request Action & Modal --}}
 
-<div class="vi-auth-extra-box">
+<div x-data="{ showDemoModal: false }" class="vi-auth-extra-box">
     <div class="vi-auth-divider">
         <span class="vi-auth-divider-line"></span>
         <span class="vi-auth-divider-text">New to VI Studio?</span>
@@ -11,6 +11,7 @@
         <button 
             type="button" 
             id="vi-open-login-demo-modal"
+            @click="showDemoModal = true"
             class="vi-auth-demo-btn"
         >
             <svg 
@@ -52,108 +53,129 @@
             <span>Return to Public Website</span>
         </a>
     </div>
-</div>
 
-{{-- Demo Request Modal --}}
-<div id="vi-login-demo-modal" class="vi-login-modal" aria-hidden="true" role="dialog" style="display: none;">
-    <div class="vi-login-modal-backdrop" id="vi-login-modal-backdrop"></div>
-    <div class="vi-login-modal-dialog">
-        <div class="vi-login-modal-content">
-            <div class="vi-login-modal-header">
-                <div class="vi-login-modal-title-group">
-                    <div class="vi-login-modal-badge">
-                        <span class="vi-dot"></span>
-                        <span>VI Studio Travel CRM</span>
+    {{-- Demo Request Modal wrapped in Alpine.js --}}
+    <div 
+        id="vi-login-demo-modal" 
+        class="vi-login-modal" 
+        role="dialog" 
+        aria-modal="true" 
+        aria-hidden="true"
+        x-show="showDemoModal" 
+        x-cloak
+        @keydown.escape.window="showDemoModal = false"
+        style="display: none;"
+    >
+        <div class="vi-login-modal-backdrop" @click="showDemoModal = false" id="vi-login-modal-backdrop"></div>
+        <div class="vi-login-modal-dialog">
+            <div class="vi-login-modal-content">
+                <div class="vi-login-modal-header">
+                    <div class="vi-login-modal-title-group">
+                        <div class="vi-login-modal-badge">
+                            <span class="vi-dot"></span>
+                            <span>VI Studio Travel CRM</span>
+                        </div>
+                        <h3 class="vi-login-modal-title">Request Demo Access</h3>
+                        <p class="vi-login-modal-subtitle">Experience our next-generation travel agency management platform customized for your team.</p>
                     </div>
-                    <h3 class="vi-login-modal-title">Request Demo Access</h3>
-                    <p class="vi-login-modal-subtitle">Experience our next-generation travel agency management platform customized for your team.</p>
+                    <button 
+                        type="button" 
+                        class="vi-login-modal-close" 
+                        id="vi-close-login-demo-modal" 
+                        @click="showDemoModal = false"
+                        aria-label="Close dialog"
+                    >&times;</button>
                 </div>
-                <button type="button" class="vi-login-modal-close" id="vi-close-login-demo-modal" aria-label="Close dialog">&times;</button>
+
+                {{-- Success State --}}
+                <div id="vi-login-demo-success" style="display: none;" class="vi-login-success-box">
+                    <div class="vi-success-icon-wrap">
+                        <svg 
+                            class="vi-success-icon" 
+                            width="32" 
+                            height="32" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; display: inline-block;"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h4>Demo Request Received!</h4>
+                    <p id="vi-login-demo-success-msg">Thank you! Your inquiry has been received. Our team will review your agency details and provision your demo environment within 24 hours.</p>
+                    <button type="button" class="vi-btn-modal-close" id="vi-btn-success-close" @click="showDemoModal = false">Done</button>
+                </div>
+
+                {{-- Form State --}}
+                <form id="vi-login-demo-form" class="vi-login-modal-form">
+                    @csrf
+                    <div class="vi-form-row">
+                        <div class="vi-form-field">
+                            <label for="vi-modal-name">Full Name <span class="vi-required">*</span></label>
+                            <input type="text" id="vi-modal-name" name="name" required placeholder="e.g. Sarah Jenkins" autocomplete="name">
+                            <div class="vi-field-error" id="vi-error-name"></div>
+                        </div>
+
+                        <div class="vi-form-field">
+                            <label for="vi-modal-email">Work Email <span class="vi-required">*</span></label>
+                            <input type="email" id="vi-modal-email" name="email" required placeholder="sarah@travelagency.com" autocomplete="email">
+                            <div class="vi-field-error" id="vi-error-email"></div>
+                        </div>
+                    </div>
+
+                    <div class="vi-form-row">
+                        <div class="vi-form-field">
+                            <label for="vi-modal-company">Agency / Company Name <span class="vi-required">*</span></label>
+                            <input type="text" id="vi-modal-company" name="company" required placeholder="e.g. Apex Journeys Ltd" autocomplete="organization">
+                            <div class="vi-field-error" id="vi-error-company"></div>
+                        </div>
+
+                        <div class="vi-form-field">
+                            <label for="vi-modal-focus">Primary Focus / Model</label>
+                            <select id="vi-modal-focus" name="focus">
+                                <option value="Luxury & Tailor-Made">Luxury & Tailor-Made Tours</option>
+                                <option value="Group & Adventure Travel">Group & Adventure Travel</option>
+                                <option value="Corporate & MICE">Corporate & MICE Management</option>
+                                <option value="Destination Management Company (DMC)">DMC (Destination Management)</option>
+                                <option value="Independent Travel Agency">Independent Travel Agency</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="vi-form-field">
+                        <label for="vi-modal-message">Specific Requirements or Inquiries</label>
+                        <textarea id="vi-modal-message" name="message" rows="3" placeholder="Tell us about your team size, current pain points, or destinations..."></textarea>
+                        <div class="vi-field-error" id="vi-error-message"></div>
+                    </div>
+
+                    <div class="vi-general-error" id="vi-general-error" style="display: none;"></div>
+
+                    <div class="vi-form-actions">
+                        <button type="button" class="vi-btn-cancel" id="vi-btn-form-cancel" @click="showDemoModal = false">Cancel</button>
+                        <button type="submit" class="vi-btn-submit" id="vi-btn-form-submit">
+                            <span id="vi-btn-text">Submit Demo Request</span>
+                            <span id="vi-btn-spinner" style="display: none;">
+                                <svg class="vi-spinner-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 6px;">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"></circle>
+                                    <path fill="currentColor" opacity="0.8" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                Submitting...
+                            </span>
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            {{-- Success State --}}
-            <div id="vi-login-demo-success" style="display: none;" class="vi-login-success-box">
-                <div class="vi-success-icon-wrap">
-                    <svg 
-                        class="vi-success-icon" 
-                        width="32" 
-                        height="32" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                        style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; display: inline-block;"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h4>Demo Request Received!</h4>
-                <p id="vi-login-demo-success-msg">Thank you! Your inquiry has been received. Our team will review your agency details and provision your demo environment within 24 hours.</p>
-                <button type="button" class="vi-btn-modal-close" id="vi-btn-success-close">Done</button>
-            </div>
-
-            {{-- Form State --}}
-            <form id="vi-login-demo-form" class="vi-login-modal-form">
-                @csrf
-                <div class="vi-form-row">
-                    <div class="vi-form-field">
-                        <label for="vi-modal-name">Full Name <span class="vi-required">*</span></label>
-                        <input type="text" id="vi-modal-name" name="name" required placeholder="e.g. Sarah Jenkins" autocomplete="name">
-                        <div class="vi-field-error" id="vi-error-name"></div>
-                    </div>
-
-                    <div class="vi-form-field">
-                        <label for="vi-modal-email">Work Email <span class="vi-required">*</span></label>
-                        <input type="email" id="vi-modal-email" name="email" required placeholder="sarah@travelagency.com" autocomplete="email">
-                        <div class="vi-field-error" id="vi-error-email"></div>
-                    </div>
-                </div>
-
-                <div class="vi-form-row">
-                    <div class="vi-form-field">
-                        <label for="vi-modal-company">Agency / Company Name <span class="vi-required">*</span></label>
-                        <input type="text" id="vi-modal-company" name="company" required placeholder="e.g. Apex Journeys Ltd" autocomplete="organization">
-                        <div class="vi-field-error" id="vi-error-company"></div>
-                    </div>
-
-                    <div class="vi-form-field">
-                        <label for="vi-modal-focus">Primary Focus / Model</label>
-                        <select id="vi-modal-focus" name="focus">
-                            <option value="Luxury & Tailor-Made">Luxury & Tailor-Made Tours</option>
-                            <option value="Group & Adventure Travel">Group & Adventure Travel</option>
-                            <option value="Corporate & MICE">Corporate & MICE Management</option>
-                            <option value="Destination Management Company (DMC)">DMC (Destination Management)</option>
-                            <option value="Independent Travel Agency">Independent Travel Agency</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="vi-form-field">
-                    <label for="vi-modal-message">Specific Requirements or Inquiries</label>
-                    <textarea id="vi-modal-message" name="message" rows="3" placeholder="Tell us about your team size, current pain points, or destinations..."></textarea>
-                    <div class="vi-field-error" id="vi-error-message"></div>
-                </div>
-
-                <div class="vi-general-error" id="vi-general-error" style="display: none;"></div>
-
-                <div class="vi-form-actions">
-                    <button type="button" class="vi-btn-cancel" id="vi-btn-form-cancel">Cancel</button>
-                    <button type="submit" class="vi-btn-submit" id="vi-btn-form-submit">
-                        <span id="vi-btn-text">Submit Demo Request</span>
-                        <span id="vi-btn-spinner" style="display: none;">
-                            <svg class="vi-spinner-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 6px;">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"></circle>
-                                <path fill="currentColor" opacity="0.8" d="M4 12a8 8 0 018-8v8H4z"></path>
-                            </svg>
-                            Submitting...
-                        </span>
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
 
 <style>
+/* === Alpine Cloak Helper === */
+[x-cloak] {
+    display: none !important;
+}
+
 /* === VI Studio Login Page Extra Actions === */
 .vi-auth-extra-box {
     margin-top: 1.5rem !important;
@@ -266,316 +288,317 @@
 }
 
 /* === Demo Request Modal Overlay & Dialog === */
+/* NOTE: We do NOT use display: flex !important here so Alpine's x-show (display: none !important) works correctly! */
 .vi-login-modal {
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 99999 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 1.25rem !important;
-    overflow-y: auto !important;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    overflow-y: auto;
 }
 
 .vi-login-modal-backdrop {
-    position: fixed !important;
-    inset: 0 !important;
-    background: rgba(5, 5, 18, 0.88) !important;
-    backdrop-filter: blur(18px) saturate(180%) !important;
-    animation: vi-modal-fade 0.25s ease-out !important;
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 18, 0.88);
+    backdrop-filter: blur(18px) saturate(180%);
+    animation: vi-modal-fade 0.25s ease-out;
 }
 
 .vi-login-modal-dialog {
-    position: relative !important;
-    z-index: 10 !important;
-    width: 100% !important;
-    max-width: 36rem !important;
-    margin: auto !important;
-    animation: vi-modal-scale 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 36rem;
+    margin: auto;
+    animation: vi-modal-scale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .vi-login-modal-content {
-    background: linear-gradient(150deg, rgba(22, 16, 45, 0.98), rgba(10, 10, 26, 0.99)) !important;
-    border: 1px solid rgba(124, 58, 237, 0.35) !important;
-    border-radius: 1.5rem !important;
-    padding: 2.25rem !important;
+    background: linear-gradient(150deg, rgba(22, 16, 45, 0.98), rgba(10, 10, 26, 0.99));
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 1.5rem;
+    padding: 2.25rem;
     box-shadow: 
         0 0 50px rgba(124, 58, 237, 0.25),
         0 0 100px rgba(6, 182, 212, 0.15),
-        0 25px 60px rgba(0, 0, 0, 0.75) !important;
-    color: #e0e7ff !important;
-    position: relative !important;
+        0 25px 60px rgba(0, 0, 0, 0.75);
+    color: #e0e7ff;
+    position: relative;
 }
 
 .vi-login-modal-header {
-    display: flex !important;
-    align-items: flex-start !important;
-    justify-content: space-between !important;
-    gap: 1rem !important;
-    margin-bottom: 1.5rem !important;
-    text-align: left !important;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
 }
 
 .vi-login-modal-badge {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    padding: 0.25rem 0.75rem !important;
-    border-radius: 9999px !important;
-    background: rgba(124, 58, 237, 0.2) !important;
-    border: 1px solid rgba(124, 58, 237, 0.4) !important;
-    font-size: 0.725rem !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    color: #00d4ff !important;
-    margin-bottom: 0.5rem !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    font-size: 0.725rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #00d4ff;
+    margin-bottom: 0.5rem;
 }
 
 .vi-dot {
-    width: 6px !important;
-    height: 6px !important;
-    border-radius: 50% !important;
-    background: #00d4ff !important;
-    box-shadow: 0 0 8px #00d4ff !important;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00d4ff;
+    box-shadow: 0 0 8px #00d4ff;
 }
 
 .vi-login-modal-title {
-    font-size: 1.4rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    line-height: 1.25 !important;
-    margin: 0 !important;
-    background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.25;
+    margin: 0;
+    background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .vi-login-modal-subtitle {
-    font-size: 0.85rem !important;
-    color: #94a3b8 !important;
-    margin-top: 0.4rem !important;
-    line-height: 1.45 !important;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: 0.4rem;
+    line-height: 1.45;
 }
 
 .vi-login-modal-close {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    color: #cbd5e1 !important;
-    font-size: 1.5rem !important;
-    line-height: 1 !important;
-    width: 2.25rem !important;
-    height: 2.25rem !important;
-    border-radius: 50% !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.2s ease !important;
-    flex-shrink: 0 !important;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    font-size: 1.5rem;
+    line-height: 1;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .vi-login-modal-close:hover {
-    background: rgba(239, 68, 68, 0.25) !important;
-    border-color: rgba(239, 68, 68, 0.5) !important;
-    color: #f87171 !important;
-    transform: rotate(90deg) !important;
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #f87171;
+    transform: rotate(90deg);
 }
 
 /* === Form Grid and Inputs === */
 .vi-login-modal-form {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1.15rem !important;
-    text-align: left !important;
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    text-align: left;
 }
 
 .vi-form-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 1rem !important;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
 }
 
 @media (max-width: 640px) {
     .vi-form-row {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr;
     }
 }
 
 .vi-form-field {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.35rem !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
 }
 
 .vi-form-field label {
-    font-size: 0.8rem !important;
-    font-weight: 600 !important;
-    color: #c4b5fd !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #c4b5fd;
 }
 
 .vi-required {
-    color: #f43f5e !important;
+    color: #f43f5e;
 }
 
 .vi-form-field input,
 .vi-form-field select,
 .vi-form-field textarea {
-    width: 100% !important;
-    padding: 0.65rem 0.9rem !important;
-    background: rgba(10, 10, 26, 0.85) !important;
-    border: 1px solid rgba(124, 58, 237, 0.35) !important;
-    border-radius: 0.75rem !important;
-    color: #ffffff !important;
-    font-size: 0.875rem !important;
-    font-family: inherit !important;
-    transition: all 0.2s ease !important;
-    outline: none !important;
-    box-sizing: border-box !important;
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    background: rgba(10, 10, 26, 0.85);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 0.75rem;
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    outline: none;
+    box-sizing: border-box;
 }
 
 .vi-form-field select option {
-    background: #0f0f23 !important;
-    color: #e0e7ff !important;
+    background: #0f0f23;
+    color: #e0e7ff;
 }
 
 .vi-form-field input:focus,
 .vi-form-field select:focus,
 .vi-form-field textarea:focus {
-    border-color: #00d4ff !important;
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
-    background: rgba(15, 15, 35, 0.95) !important;
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+    background: rgba(15, 15, 35, 0.95);
 }
 
 .vi-form-field input::placeholder,
 .vi-form-field textarea::placeholder {
-    color: #64748b !important;
+    color: #64748b;
 }
 
 .vi-field-error {
-    font-size: 0.75rem !important;
-    color: #f87171 !important;
-    min-height: 1rem !important;
-    display: none !important;
+    font-size: 0.75rem;
+    color: #f87171;
+    min-height: 1rem;
+    display: none;
 }
 
 .vi-field-error.visible {
-    display: block !important;
+    display: block;
 }
 
 .vi-general-error {
-    background: rgba(239, 68, 68, 0.15) !important;
-    border: 1px solid rgba(239, 68, 68, 0.4) !important;
-    color: #fca5a5 !important;
-    padding: 0.75rem !important;
-    border-radius: 0.75rem !important;
-    font-size: 0.825rem !important;
-    text-align: center !important;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.825rem;
+    text-align: center;
 }
 
 .vi-form-actions {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 0.85rem !important;
-    margin-top: 0.5rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.85rem;
+    margin-top: 0.5rem;
 }
 
 .vi-btn-cancel {
-    padding: 0.65rem 1.25rem !important;
-    background: transparent !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 0.75rem !important;
-    color: #cbd5e1 !important;
-    font-size: 0.85rem !important;
-    font-weight: 500 !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
+    padding: 0.65rem 1.25rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.75rem;
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .vi-btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
 }
 
 .vi-btn-submit {
-    padding: 0.65rem 1.6rem !important;
-    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%) !important;
-    border: none !important;
-    border-radius: 0.75rem !important;
-    color: #ffffff !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35) !important;
+    padding: 0.65rem 1.6rem;
+    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+    border: none;
+    border-radius: 0.75rem;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
 }
 
 .vi-btn-submit:hover:not(:disabled) {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5), 0 0 15px rgba(0, 212, 255, 0.3) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5), 0 0 15px rgba(0, 212, 255, 0.3);
 }
 
 .vi-btn-submit:disabled {
-    opacity: 0.65 !important;
-    cursor: not-allowed !important;
+    opacity: 0.65;
+    cursor: not-allowed;
 }
 
 /* === Success State === */
 .vi-login-success-box {
-    text-align: center !important;
-    padding: 1.5rem 0.5rem !important;
+    text-align: center;
+    padding: 1.5rem 0.5rem;
 }
 
 .vi-success-icon-wrap {
-    width: 4.5rem !important;
-    height: 4.5rem !important;
-    margin: 0 auto 1.25rem !important;
-    border-radius: 50% !important;
-    background: rgba(16, 185, 129, 0.15) !important;
-    border: 2px solid rgba(16, 185, 129, 0.4) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.35) !important;
+    width: 4.5rem;
+    height: 4.5rem;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.15);
+    border: 2px solid rgba(16, 185, 129, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
 }
 
 .vi-success-icon {
-    width: 32px !important;
-    height: 32px !important;
-    color: #34d399 !important;
+    width: 32px;
+    height: 32px;
+    color: #34d399;
 }
 
 .vi-login-success-box h4 {
-    font-size: 1.4rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    margin-bottom: 0.5rem !important;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
 }
 
 .vi-login-success-box p {
-    font-size: 0.9rem !important;
-    color: #a5b4fc !important;
-    line-height: 1.55 !important;
-    margin-bottom: 1.5rem !important;
+    font-size: 0.9rem;
+    color: #a5b4fc;
+    line-height: 1.55;
+    margin-bottom: 1.5rem;
 }
 
 .vi-btn-modal-close {
-    padding: 0.65rem 2.2rem !important;
-    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%) !important;
-    border: none !important;
-    border-radius: 0.75rem !important;
-    color: #ffffff !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35) !important;
-    transition: all 0.2s ease !important;
+    padding: 0.65rem 2.2rem;
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+    border: none;
+    border-radius: 0.75rem;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    transition: all 0.2s ease;
 }
 
 .vi-btn-modal-close:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
 }
 
 /* Animations */
@@ -608,12 +631,6 @@
 <script>
 (function() {
     function initViDemoModal() {
-        const openBtn = document.getElementById('vi-open-login-demo-modal');
-        const modal = document.getElementById('vi-login-demo-modal');
-        const backdrop = document.getElementById('vi-login-modal-backdrop');
-        const closeBtn = document.getElementById('vi-close-login-demo-modal');
-        const cancelBtn = document.getElementById('vi-btn-form-cancel');
-        const successCloseBtn = document.getElementById('vi-btn-success-close');
         const form = document.getElementById('vi-login-demo-form');
         const successBox = document.getElementById('vi-login-demo-success');
         const generalError = document.getElementById('vi-general-error');
@@ -621,28 +638,7 @@
         const btnText = document.getElementById('vi-btn-text');
         const btnSpinner = document.getElementById('vi-btn-spinner');
 
-        if (!openBtn || !modal || !form) return;
-
-        function openModal() {
-            modal.style.display = 'flex';
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-            form.style.display = 'flex';
-            if (successBox) successBox.style.display = 'none';
-            if (generalError) {
-                generalError.style.display = 'none';
-                generalError.textContent = '';
-            }
-            clearErrors();
-            const nameInput = document.getElementById('vi-modal-name');
-            if (nameInput) setTimeout(() => nameInput.focus(), 100);
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-        }
+        if (!form) return;
 
         function clearErrors() {
             document.querySelectorAll('.vi-field-error').forEach(el => {
@@ -654,18 +650,6 @@
                 generalError.textContent = '';
             }
         }
-
-        openBtn.addEventListener('click', openModal);
-        if (backdrop) backdrop.addEventListener('click', closeModal);
-        if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-        if (successCloseBtn) successCloseBtn.addEventListener('click', closeModal);
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal.style.display === 'flex') {
-                closeModal();
-            }
-        });
 
         form.addEventListener('submit', async function(e) {
             e.preventDefault();

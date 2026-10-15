@@ -159,6 +159,10 @@ class AdminPanelProvider extends PanelProvider
                 max-height: 16px !important;
             }
 
+            [x-cloak] {
+                display: none !important;
+            }
+
             /* Sidebar styling */
             .fi-sidebar {
                 background: linear-gradient(180deg, #0f0f23 0%, #1a0a2e 100%) !important;
