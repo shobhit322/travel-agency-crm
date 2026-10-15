@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\CustomerEmailChangeController;
+use App\Http\Controllers\DemoRequestController;
 use App\Http\Controllers\ImpersonationController;
 use App\Http\Controllers\Payments\CheckoutController;
 use App\Http\Controllers\Payments\PostedReturnController;
@@ -20,6 +21,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('/demo-request', [DemoRequestController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('demo-request.store');
 
 // Scheduled work on Vercel, where no `schedule:work` process can run. Bearer-token protected.
 Route::get('/internal/cron/{task}', CronController::class)
