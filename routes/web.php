@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\CustomerEmailChangeController;
+use App\Http\Controllers\DemoRequestController;
 use App\Http\Controllers\ImpersonationController;
 use App\Http\Controllers\Payments\CheckoutController;
 use App\Http\Controllers\Payments\PostedReturnController;
@@ -17,9 +18,11 @@ use App\Http\Middleware\ResolveAgencySubdomain;
 use App\Http\Middleware\ResolveTenant;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// The public VI Studio Travel CRM website, with the "Request a demo" form (a SaaS lead for the Super Admin).
+Route::view('/', 'site.home')->name('home');
+Route::get('/request-demo', [DemoRequestController::class, 'create'])->name('demo.create');
+Route::post('/request-demo', [DemoRequestController::class, 'store'])->name('demo.store')->middleware('throttle:demo-request');
+Route::get('/request-demo/thanks', [DemoRequestController::class, 'thanks'])->name('demo.thanks');
 
 // Scheduled work on Vercel, where no `schedule:work` process can run. Bearer-token protected.
 Route::get('/internal/cron/{task}', CronController::class)

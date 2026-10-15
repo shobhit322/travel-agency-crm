@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>Use your agency's link — {{ config('app.name') }}</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('brand/favicon-32.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('brand/apple-touch-icon.png') }}">
+    <title>Use your agency's link — {{ config('branding.name') }}</title>
     <style>
         :root { color-scheme: light; }
         body {
@@ -25,10 +27,13 @@
         h1 { font-size: 22px; margin: 0 0 16px; }
         p { font-size: 15px; line-height: 1.6; margin: 0 0 16px; }
         .muted { color: #6b7280; font-size: 14px; margin: 0; }
+        .brand-mark { text-align: center; margin: 0 0 20px; }
+        .brand-mark img { width: 120px; height: auto; display: inline-block; border-radius: 12px; }
     </style>
 </head>
 <body>
     <div class="card">
+    <div class="brand-mark"><img src="{{ asset(config('branding.logo_small')) }}" width="320" height="274" alt="{{ config('branding.company') }} logo"></div>
         <h1>Please use your agency's link</h1>
         <p>Each travel agency has its own sign-in address. Open the link from the email your agency sent you — for example your invitation or password email — or ask your agency for its address.</p>
         <p class="muted">If you followed a link and landed here, the address may be mistyped.</p>

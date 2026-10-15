@@ -44,6 +44,18 @@ class SaasLeadResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function getNavigationBadge(): ?string
+    {
+        $new = SaasLead::query()->where('status', 'new')->count();
+
+        return $new > 0 ? (string) $new : null;
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'New leads and demo requests waiting for a reply';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\AgencyBranding;
+use App\Filament\PlatformBranding;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Middleware\EnsurePlatformAvailable;
 use App\Http\Middleware\ResolveAgencySubdomain;
@@ -15,7 +16,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -41,10 +41,7 @@ class TenantPanelProvider extends PanelProvider
             ->authPasswordBroker('tenant_users')
             ->login()
             ->passwordReset()
-            ->colors([
-                'primary' => Color::Amber,
-                'secondary' => Color::Blue,
-            ])
+            ->colors(PlatformBranding::colors())
             ->maxContentWidth(Width::Full)
             ->renderHook(PanelsRenderHook::BODY_START, function (): string {
                 $impersonator = app(TenantImpersonation::class)->impersonator(request());

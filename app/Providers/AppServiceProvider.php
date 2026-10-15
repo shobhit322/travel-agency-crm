@@ -136,6 +136,12 @@ class AppServiceProvider extends ServiceProvider
             Limit::perDay(50)->by($request->ip()),
         ]);
 
+        // The public "Request a demo" form (routes/web.php) creates a SaaS lead, so it is throttled per IP.
+        RateLimiter::for('demo-request', fn (Request $request): array => [
+            Limit::perMinute(3)->by($request->ip()),
+            Limit::perHour(10)->by($request->ip()),
+        ]);
+
         // Every emailed setup/reset link (AccountSetupLinks, the portal's own "Forgot password")
         // lands on Filament's reset page. Choosing a password there proves the user owns the
         // address, so it verifies their email and activates a pending customer account.

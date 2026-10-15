@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\PlatformBranding;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Middleware\EnsurePlatformDomain;
 use App\Http\Middleware\ResolvePlatformTeam;
@@ -12,8 +13,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -26,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        return PlatformBranding::apply($panel)
             ->default()
             ->id('admin')
             ->path('admin')
@@ -34,9 +35,9 @@ class AdminPanelProvider extends PanelProvider
             ->authPasswordBroker('super_admins')
             ->login()
             ->passwordReset()
-            ->colors([
-                'primary' => Color::Amber,
-            ])
+            ->colors(PlatformBranding::colors())
+            ->sidebarCollapsibleOnDesktop()
+            ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn (): string => view('brand.login-demo-cta')->render())
             ->maxContentWidth(Width::Full)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

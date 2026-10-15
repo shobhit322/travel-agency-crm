@@ -25,6 +25,8 @@
     <title>{{ $title ? "{$title} — " : '' }}{{ $tenant->name }}</title>
     @if (filled($tenant->favicon))
         <link rel="icon" href="{{ Storage::disk('public')->url($tenant->favicon) }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('brand/favicon-32.png') }}">
     @endif
     <style>
         :root { color-scheme: light; --accent: {{ $accent }}; --ink: #1f2430; --muted: #6b7280; --line: #e5e7eb; --bg: #f6f7f9; }
@@ -135,6 +137,9 @@
             @if ($email)<a href="mailto:{{ $email }}">{{ $email }}</a>@endif
             @if ($contact['facebook_url'] ?? null)<a href="{{ $contact['facebook_url'] }}" rel="noopener">Facebook</a>@endif
             @if ($contact['instagram_url'] ?? null)<a href="{{ $contact['instagram_url'] }}" rel="noopener">Instagram</a>@endif
+        </div>
+        <div class="wrap" style="margin-top: 14px; font-size: 12px; color: #9aa0ad;">
+            Powered by <strong>{{ config('branding.name') }}</strong>
         </div>
     </footer>
 </body>

@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\AgencyBranding;
+use App\Filament\PlatformBranding;
 use App\Filament\Portal\Pages\Auth\ResetPassword;
 use App\Filament\Portal\Pages\Profile;
 use App\Http\Controllers\InvoicePdfController;
@@ -16,7 +17,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -42,10 +42,7 @@ class PortalPanelProvider extends PanelProvider
             ->login()
             ->passwordReset(resetAction: ResetPassword::class)
             ->profile(Profile::class, isSimple: false)
-            ->colors([
-                'primary' => Color::Amber,
-                'secondary' => Color::Blue,
-            ])
+            ->colors(PlatformBranding::colors())
             ->maxContentWidth(Width::Full)
             ->discoverResources(in: app_path('Filament/Portal/Resources'), for: 'App\Filament\Portal\Resources')
             ->discoverPages(in: app_path('Filament/Portal/Pages'), for: 'App\Filament\Portal\Pages')

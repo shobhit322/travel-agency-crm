@@ -14,19 +14,23 @@ use Illuminate\Support\Facades\Storage;
  * on: its name, logo, favicon and primary/secondary colours, all set by the Super Admin on the
  * tenant. Because the agency comes from the subdomain, the login and password pages are branded
  * too — before anyone signs in. Falls back to the signed-in user's agency (e.g. in component tests
- * that don't run the subdomain middleware) and then to the platform's own name.
+ * that don't run the subdomain middleware) and then to the platform's own name. The agency's own
+ * name/logo always wins; VI Studio Travel CRM appears as the favicon fallback and a "Powered by"
+ * footer, with the shared stylesheet (see PlatformBranding).
  */
 class AgencyBranding
 {
     public static function apply(Panel $panel): Panel
     {
         return $panel
-            ->brandName(fn (): string => static::agency()?->name ?? config('app.name'))
+            ->brandName(fn (): string => static::agency()?->name ?? config('branding.name'))
             ->brandLogo(fn (): ?string => static::publicUrl(static::agency()?->logo))
             // 'auto' instead of Filament's fixed 1.5rem: the logo keeps its own size (see logoStyles()).
             ->brandLogoHeight('auto')
-            ->favicon(fn (): ?string => static::publicUrl(static::agency()?->favicon))
-            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => static::logoStyles().static::headingStyles().static::colorStyles());
+            ->favicon(fn (): string => static::publicUrl(static::agency()?->favicon) ?? asset(config('branding.favicon')))
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => PlatformBranding::headTags().static::logoStyles().static::headingStyles().static::colorStyles())
+            ->renderHook(PanelsRenderHook::FOOTER, fn (): string => PlatformBranding::poweredBy())
+            ->renderHook(PanelsRenderHook::SIMPLE_LAYOUT_END, fn (): string => PlatformBranding::poweredBy());
     }
 
     /**
