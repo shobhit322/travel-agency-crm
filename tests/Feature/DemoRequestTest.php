@@ -12,6 +12,17 @@ test('the public landing page displays VI Studio Travel CRM branding and demo re
         ->assertSee('Request Demo');
 });
 
+test('the public landing page displays travel imagery and destinations showcase', function () {
+    $response = $this->get('/');
+
+    $response->assertOk()
+        ->assertSee('Amalfi Coast')
+        ->assertSee('Maldives Overwater')
+        ->assertSee('Swiss Alps')
+        ->assertSee('Serengeti')
+        ->assertSee('Kyoto');
+});
+
 test('a visitor can submit a valid demo request', function () {
     RateLimiter::clear('demo-request:127.0.0.1');
 
@@ -63,11 +74,16 @@ test('demo requests are rate limited after repeated submissions', function () {
         ]);
 });
 
-test('the admin login page renders VI Studio branding and the demo request action', function () {
+test('the admin login page renders VI Studio branding, demo request action, and properly sized icons', function () {
     $response = $this->get('/admin/login');
 
     $response->assertOk()
         ->assertSee('VI Studio Travel CRM')
         ->assertSee('vi-open-login-demo-modal')
-        ->assertSee('Request Demo Access');
+        ->assertSee('vi-auth-btn-icon')
+        ->assertSee('vi-auth-link-icon')
+        ->assertSee('width="16"', false)
+        ->assertSee('width="14"', false)
+        ->assertSee('Request Demo Access')
+        ->assertSee('Return to Public Website');
 });

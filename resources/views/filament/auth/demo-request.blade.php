@@ -1,29 +1,53 @@
-{{-- VI Studio Travel CRM — Login Page Demo Request & Back Navigation --}}
-<div class="mt-6 pt-5 border-t border-purple-500/20 text-center space-y-3">
-    <div class="flex items-center justify-center gap-2">
-        <span class="text-xs text-indigo-200/70 font-medium">Interested in VI Studio Travel CRM?</span>
+{{-- VI Studio Travel CRM — Admin Login Page Demo Request Action & Modal --}}
+
+<div class="vi-auth-extra-box">
+    <div class="vi-auth-divider">
+        <span class="vi-auth-divider-line"></span>
+        <span class="vi-auth-divider-text">New to VI Studio?</span>
+        <span class="vi-auth-divider-line"></span>
     </div>
 
-    <div>
+    <div class="vi-auth-actions-group">
         <button 
             type="button" 
             id="vi-open-login-demo-modal"
-            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 rounded-xl shadow-lg cursor-pointer bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 hover:shadow-purple-500/30 hover:scale-[1.02] active:scale-[0.98] border border-purple-400/30"
+            class="vi-auth-demo-btn"
         >
-            <svg class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <svg 
+                class="vi-auth-btn-icon" 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"
+                style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 16px; max-height: 16px; display: inline-block; vertical-align: middle; flex-shrink: 0;"
+            >
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
             </svg>
             <span>Request Demo Access</span>
         </button>
-    </div>
 
-    <div>
         <a 
             href="{{ url('/') }}" 
-            class="inline-flex items-center gap-1.5 text-xs text-indigo-300/80 hover:text-cyan-300 transition-colors py-1 px-2 rounded-lg hover:bg-white/5"
+            class="vi-auth-back-link"
         >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <svg 
+                class="vi-auth-link-icon" 
+                width="14" 
+                height="14" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"
+                style="width: 14px; height: 14px; min-width: 14px; min-height: 14px; max-width: 14px; max-height: 14px; display: inline-block; vertical-align: middle; flex-shrink: 0;"
+            >
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
             <span>Return to Public Website</span>
         </a>
@@ -42,7 +66,7 @@
                         <span>VI Studio Travel CRM</span>
                     </div>
                     <h3 class="vi-login-modal-title">Request Demo Access</h3>
-                    <p class="vi-login-modal-subtitle">Discover how our all-in-one travel management platform transforms bookings, operations, and agency growth.</p>
+                    <p class="vi-login-modal-subtitle">Experience our next-generation travel agency management platform customized for your team.</p>
                 </div>
                 <button type="button" class="vi-login-modal-close" id="vi-close-login-demo-modal" aria-label="Close dialog">&times;</button>
             </div>
@@ -50,39 +74,62 @@
             {{-- Success State --}}
             <div id="vi-login-demo-success" style="display: none;" class="vi-login-success-box">
                 <div class="vi-success-icon-wrap">
-                    <svg class="vi-success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg 
+                        class="vi-success-icon" 
+                        width="32" 
+                        height="32" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; display: inline-block;"
+                    >
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
-                <h4>Request Received!</h4>
-                <p id="vi-login-demo-success-msg">Thank you! Your demo request has been received. Our team will contact you shortly with your demo environment details.</p>
+                <h4>Demo Request Received!</h4>
+                <p id="vi-login-demo-success-msg">Thank you! Your inquiry has been received. Our team will review your agency details and provision your demo environment within 24 hours.</p>
                 <button type="button" class="vi-btn-modal-close" id="vi-btn-success-close">Done</button>
             </div>
 
             {{-- Form State --}}
             <form id="vi-login-demo-form" class="vi-login-modal-form">
                 @csrf
-                <div class="vi-form-field">
-                    <label for="vi-modal-name">Full Name <span class="vi-required">*</span></label>
-                    <input type="text" id="vi-modal-name" name="name" required placeholder="e.g. Sarah Jenkins" autocomplete="name">
-                    <div class="vi-field-error" id="vi-error-name"></div>
+                <div class="vi-form-row">
+                    <div class="vi-form-field">
+                        <label for="vi-modal-name">Full Name <span class="vi-required">*</span></label>
+                        <input type="text" id="vi-modal-name" name="name" required placeholder="e.g. Sarah Jenkins" autocomplete="name">
+                        <div class="vi-field-error" id="vi-error-name"></div>
+                    </div>
+
+                    <div class="vi-form-field">
+                        <label for="vi-modal-email">Work Email <span class="vi-required">*</span></label>
+                        <input type="email" id="vi-modal-email" name="email" required placeholder="sarah@travelagency.com" autocomplete="email">
+                        <div class="vi-field-error" id="vi-error-email"></div>
+                    </div>
+                </div>
+
+                <div class="vi-form-row">
+                    <div class="vi-form-field">
+                        <label for="vi-modal-company">Agency / Company Name <span class="vi-required">*</span></label>
+                        <input type="text" id="vi-modal-company" name="company" required placeholder="e.g. Apex Journeys Ltd" autocomplete="organization">
+                        <div class="vi-field-error" id="vi-error-company"></div>
+                    </div>
+
+                    <div class="vi-form-field">
+                        <label for="vi-modal-focus">Primary Focus / Model</label>
+                        <select id="vi-modal-focus" name="focus">
+                            <option value="Luxury & Tailor-Made">Luxury & Tailor-Made Tours</option>
+                            <option value="Group & Adventure Travel">Group & Adventure Travel</option>
+                            <option value="Corporate & MICE">Corporate & MICE Management</option>
+                            <option value="Destination Management Company (DMC)">DMC (Destination Management)</option>
+                            <option value="Independent Travel Agency">Independent Travel Agency</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="vi-form-field">
-                    <label for="vi-modal-email">Work Email <span class="vi-required">*</span></label>
-                    <input type="email" id="vi-modal-email" name="email" required placeholder="sarah@travelagency.com" autocomplete="email">
-                    <div class="vi-field-error" id="vi-error-email"></div>
-                </div>
-
-                <div class="vi-form-field">
-                    <label for="vi-modal-company">Travel Agency / Company</label>
-                    <input type="text" id="vi-modal-company" name="company" placeholder="e.g. Apex Journeys Ltd" autocomplete="organization">
-                    <div class="vi-field-error" id="vi-error-company"></div>
-                </div>
-
-                <div class="vi-form-field">
-                    <label for="vi-modal-message">Agency Requirements / Message</label>
-                    <textarea id="vi-modal-message" name="message" rows="3" placeholder="Tell us about your team size, destinations, or specific CRM needs..."></textarea>
+                    <label for="vi-modal-message">Specific Requirements or Inquiries</label>
+                    <textarea id="vi-modal-message" name="message" rows="3" placeholder="Tell us about your team size, current pain points, or destinations..."></textarea>
                     <div class="vi-field-error" id="vi-error-message"></div>
                 </div>
 
@@ -91,13 +138,13 @@
                 <div class="vi-form-actions">
                     <button type="button" class="vi-btn-cancel" id="vi-btn-form-cancel">Cancel</button>
                     <button type="submit" class="vi-btn-submit" id="vi-btn-form-submit">
-                        <span id="vi-btn-text">Submit Request</span>
+                        <span id="vi-btn-text">Submit Demo Request</span>
                         <span id="vi-btn-spinner" style="display: none;">
-                            <svg class="animate-spin h-4 w-4 text-white inline-block mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            <svg class="vi-spinner-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 6px;">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"></circle>
+                                <path fill="currentColor" opacity="0.8" d="M4 12a8 8 0 018-8v8H4z"></path>
                             </svg>
-                            Sending...
+                            Submitting...
                         </span>
                     </button>
                 </div>
@@ -107,314 +154,454 @@
 </div>
 
 <style>
-/* Modal Base Styles */
+/* === VI Studio Login Page Extra Actions === */
+.vi-auth-extra-box {
+    margin-top: 1.5rem !important;
+    padding-top: 0.5rem !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+.vi-auth-divider {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1.25rem !important;
+}
+
+.vi-auth-divider-line {
+    flex: 1 !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.35), transparent) !important;
+}
+
+.vi-auth-divider-text {
+    font-size: 0.75rem !important;
+    color: #a5b4fc !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+.vi-auth-actions-group {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.85rem !important;
+}
+
+/* Request Demo Access Button */
+.vi-auth-demo-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    padding: 0.65rem 1.4rem !important;
+    font-size: 0.825rem !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35) !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    line-height: 1 !important;
+}
+
+.vi-auth-demo-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5), 0 0 15px rgba(0, 212, 255, 0.3) !important;
+    border-color: rgba(0, 212, 255, 0.5) !important;
+}
+
+.vi-auth-demo-btn:active {
+    transform: translateY(0) !important;
+}
+
+.vi-auth-btn-icon {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+    color: #00d4ff !important;
+    flex-shrink: 0 !important;
+}
+
+/* Return to Public Website Link */
+.vi-auth-back-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.4rem !important;
+    font-size: 0.8rem !important;
+    color: #94a3b8 !important;
+    text-decoration: none !important;
+    padding: 0.4rem 0.85rem !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.2s ease !important;
+    background: transparent !important;
+    line-height: 1 !important;
+}
+
+.vi-auth-back-link:hover {
+    color: #00d4ff !important;
+    background: rgba(124, 58, 237, 0.12) !important;
+}
+
+.vi-auth-link-icon {
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+    color: currentColor !important;
+    flex-shrink: 0 !important;
+}
+
+/* === Demo Request Modal Overlay & Dialog === */
 .vi-login-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    overflow-y: auto;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1.25rem !important;
+    overflow-y: auto !important;
 }
 
 .vi-login-modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 5, 15, 0.85);
-    backdrop-filter: blur(16px) saturate(160%);
-    animation: vi-fade-in 0.25s ease-out;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(5, 5, 18, 0.88) !important;
+    backdrop-filter: blur(18px) saturate(180%) !important;
+    animation: vi-modal-fade 0.25s ease-out !important;
 }
 
 .vi-login-modal-dialog {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    max-width: 32rem;
-    margin: auto;
-    animation: vi-scale-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative !important;
+    z-index: 10 !important;
+    width: 100% !important;
+    max-width: 36rem !important;
+    margin: auto !important;
+    animation: vi-modal-scale 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .vi-login-modal-content {
-    background: linear-gradient(145deg, rgba(20, 15, 40, 0.95), rgba(10, 10, 26, 0.98));
-    border: 1px solid rgba(124, 58, 237, 0.35);
-    border-radius: 1.5rem;
-    padding: 2rem;
+    background: linear-gradient(150deg, rgba(22, 16, 45, 0.98), rgba(10, 10, 26, 0.99)) !important;
+    border: 1px solid rgba(124, 58, 237, 0.35) !important;
+    border-radius: 1.5rem !important;
+    padding: 2.25rem !important;
     box-shadow: 
         0 0 50px rgba(124, 58, 237, 0.25),
         0 0 100px rgba(6, 182, 212, 0.15),
-        0 25px 60px rgba(0, 0, 0, 0.7);
-    color: #e0e7ff;
-    position: relative;
+        0 25px 60px rgba(0, 0, 0, 0.75) !important;
+    color: #e0e7ff !important;
+    position: relative !important;
 }
 
 .vi-login-modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    text-align: left !important;
 }
 
 .vi-login-modal-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    background: rgba(124, 58, 237, 0.2);
-    border: 1px solid rgba(124, 58, 237, 0.4);
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #00d4ff;
-    margin-bottom: 0.5rem;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+    background: rgba(124, 58, 237, 0.2) !important;
+    border: 1px solid rgba(124, 58, 237, 0.4) !important;
+    font-size: 0.725rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: #00d4ff !important;
+    margin-bottom: 0.5rem !important;
 }
 
 .vi-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #00d4ff;
-    box-shadow: 0 0 8px #00d4ff;
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background: #00d4ff !important;
+    box-shadow: 0 0 8px #00d4ff !important;
 }
 
 .vi-login-modal-title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #ffffff;
-    line-height: 1.3;
-    margin: 0;
-    background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+    background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
 }
 
 .vi-login-modal-subtitle {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    margin-top: 0.35rem;
-    line-height: 1.4;
+    font-size: 0.85rem !important;
+    color: #94a3b8 !important;
+    margin-top: 0.4rem !important;
+    line-height: 1.45 !important;
 }
 
 .vi-login-modal-close {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #cbd5e1;
-    font-size: 1.5rem;
-    line-height: 1;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #cbd5e1 !important;
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
 }
 
 .vi-login-modal-close:hover {
-    background: rgba(239, 68, 68, 0.25);
-    border-color: rgba(239, 68, 68, 0.5);
-    color: #f87171;
-    transform: rotate(90deg);
+    background: rgba(239, 68, 68, 0.25) !important;
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    color: #f87171 !important;
+    transform: rotate(90deg) !important;
 }
 
-/* Form Styles */
+/* === Form Grid and Inputs === */
 .vi-login-modal-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.15rem !important;
+    text-align: left !important;
+}
+
+.vi-form-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
+}
+
+@media (max-width: 640px) {
+    .vi-form-row {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 .vi-form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    text-align: left;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
 }
 
 .vi-form-field label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #c4b5fd;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: #c4b5fd !important;
 }
 
 .vi-required {
-    color: #f43f5e;
+    color: #f43f5e !important;
 }
 
 .vi-form-field input,
+.vi-form-field select,
 .vi-form-field textarea {
-    width: 100%;
-    padding: 0.65rem 0.9rem;
-    background: rgba(10, 10, 26, 0.7);
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    border-radius: 0.75rem;
-    color: #ffffff;
-    font-size: 0.875rem;
-    font-family: inherit;
-    transition: all 0.2s ease;
-    outline: none;
-    box-sizing: border-box;
+    width: 100% !important;
+    padding: 0.65rem 0.9rem !important;
+    background: rgba(10, 10, 26, 0.85) !important;
+    border: 1px solid rgba(124, 58, 237, 0.35) !important;
+    border-radius: 0.75rem !important;
+    color: #ffffff !important;
+    font-size: 0.875rem !important;
+    font-family: inherit !important;
+    transition: all 0.2s ease !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.vi-form-field select option {
+    background: #0f0f23 !important;
+    color: #e0e7ff !important;
 }
 
 .vi-form-field input:focus,
+.vi-form-field select:focus,
 .vi-form-field textarea:focus {
-    border-color: #00d4ff;
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
-    background: rgba(15, 15, 35, 0.9);
+    border-color: #00d4ff !important;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
+    background: rgba(15, 15, 35, 0.95) !important;
 }
 
 .vi-form-field input::placeholder,
 .vi-form-field textarea::placeholder {
-    color: #64748b;
+    color: #64748b !important;
 }
 
 .vi-field-error {
-    font-size: 0.75rem;
-    color: #f87171;
-    min-height: 1rem;
-    display: none;
+    font-size: 0.75rem !important;
+    color: #f87171 !important;
+    min-height: 1rem !important;
+    display: none !important;
 }
 
 .vi-field-error.visible {
-    display: block;
+    display: block !important;
 }
 
 .vi-general-error {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #fca5a5;
-    padding: 0.75rem;
-    border-radius: 0.75rem;
-    font-size: 0.8rem;
-    text-align: center;
+    background: rgba(239, 68, 68, 0.15) !important;
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
+    color: #fca5a5 !important;
+    padding: 0.75rem !important;
+    border-radius: 0.75rem !important;
+    font-size: 0.825rem !important;
+    text-align: center !important;
 }
 
 .vi-form-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.85rem !important;
+    margin-top: 0.5rem !important;
 }
 
 .vi-btn-cancel {
-    padding: 0.65rem 1.25rem;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 0.75rem;
-    color: #cbd5e1;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 0.65rem 1.25rem !important;
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 0.75rem !important;
+    color: #cbd5e1 !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 
 .vi-btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
 }
 
 .vi-btn-submit {
-    padding: 0.65rem 1.5rem;
-    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
-    border: none;
-    border-radius: 0.75rem;
-    color: #ffffff;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+    padding: 0.65rem 1.6rem !important;
+    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%) !important;
+    border: none !important;
+    border-radius: 0.75rem !important;
+    color: #ffffff !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35) !important;
 }
 
 .vi-btn-submit:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5), 0 0 15px rgba(0, 212, 255, 0.3) !important;
 }
 
 .vi-btn-submit:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
 }
 
-/* Success Box */
+/* === Success State === */
 .vi-login-success-box {
-    text-align: center;
-    padding: 1.5rem 0.5rem;
+    text-align: center !important;
+    padding: 1.5rem 0.5rem !important;
 }
 
 .vi-success-icon-wrap {
-    width: 4rem;
-    height: 4rem;
-    margin: 0 auto 1.25rem;
-    border-radius: 50%;
-    background: rgba(16, 185, 129, 0.15);
-    border: 2px solid rgba(16, 185, 129, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+    width: 4.5rem !important;
+    height: 4.5rem !important;
+    margin: 0 auto 1.25rem !important;
+    border-radius: 50% !important;
+    background: rgba(16, 185, 129, 0.15) !important;
+    border: 2px solid rgba(16, 185, 129, 0.4) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.35) !important;
 }
 
 .vi-success-icon {
-    width: 2rem;
-    height: 2rem;
-    color: #34d399;
+    width: 32px !important;
+    height: 32px !important;
+    color: #34d399 !important;
 }
 
 .vi-login-success-box h4 {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin-bottom: 0.5rem !important;
 }
 
 .vi-login-success-box p {
-    font-size: 0.875rem;
-    color: #a5b4fc;
-    line-height: 1.5;
-    margin-bottom: 1.5rem;
+    font-size: 0.9rem !important;
+    color: #a5b4fc !important;
+    line-height: 1.55 !important;
+    margin-bottom: 1.5rem !important;
 }
 
 .vi-btn-modal-close {
-    padding: 0.65rem 2rem;
-    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-    border: none;
-    border-radius: 0.75rem;
-    color: #ffffff;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    transition: all 0.2s ease;
+    padding: 0.65rem 2.2rem !important;
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%) !important;
+    border: none !important;
+    border-radius: 0.75rem !important;
+    color: #ffffff !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35) !important;
+    transition: all 0.2s ease !important;
 }
 
 .vi-btn-modal-close:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
 }
 
-/* Keyframes */
-@keyframes vi-fade-in {
+/* Animations */
+@keyframes vi-modal-fade {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-@keyframes vi-scale-up {
+@keyframes vi-modal-scale {
     from {
         opacity: 0;
-        transform: scale(0.92) translateY(10px);
+        transform: scale(0.92) translateY(12px);
     }
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
     }
+}
+
+.vi-spinner-icon {
+    animation: vi-spin 1s linear infinite !important;
+}
+
+@keyframes vi-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 </style>
 
@@ -487,30 +674,36 @@
             const name = document.getElementById('vi-modal-name').value.trim();
             const email = document.getElementById('vi-modal-email').value.trim();
             const company = document.getElementById('vi-modal-company').value.trim();
-            const message = document.getElementById('vi-modal-message').value.trim();
+            const focus = document.getElementById('vi-modal-focus').value;
+            const userMsg = document.getElementById('vi-modal-message').value.trim();
+            const message = focus ? `[Focus: ${focus}] ${userMsg}` : userMsg;
 
             let hasError = false;
             if (!name) {
                 const err = document.getElementById('vi-error-name');
-                if (err) { err.textContent = 'Please provide your full name.'; err.classList.add('visible'); }
+                if (err) { err.textContent = 'Please enter your full name.'; err.classList.add('visible'); }
                 hasError = true;
             }
 
             if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 const err = document.getElementById('vi-error-email');
-                if (err) { err.textContent = 'Please provide a valid work email address.'; err.classList.add('visible'); }
+                if (err) { err.textContent = 'Please enter a valid work email address.'; err.classList.add('visible'); }
+                hasError = true;
+            }
+
+            if (!company) {
+                const err = document.getElementById('vi-error-company');
+                if (err) { err.textContent = 'Please enter your travel agency or company name.'; err.classList.add('visible'); }
                 hasError = true;
             }
 
             if (hasError) return;
 
-            // Submit request
             submitBtn.disabled = true;
             btnText.style.display = 'none';
             btnSpinner.style.display = 'inline-block';
 
             try {
-                // Get CSRF token
                 let csrfToken = '';
                 const csrfInput = form.querySelector('input[name="_token"]');
                 if (csrfInput) {

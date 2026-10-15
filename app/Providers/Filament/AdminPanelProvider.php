@@ -154,6 +154,11 @@ class AdminPanelProvider extends PanelProvider
                 color: #e0e7ff !important;
             }
 
+            .vi-auth-extra-box svg {
+                max-width: 16px !important;
+                max-height: 16px !important;
+            }
+
             /* Sidebar styling */
             .fi-sidebar {
                 background: linear-gradient(180deg, #0f0f23 0%, #1a0a2e 100%) !important;
