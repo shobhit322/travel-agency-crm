@@ -95,3 +95,20 @@ jobs:
             echo "::notice title=migrate:status output (redacted)::exit=" . getenv("CODE") . " | " . substr(str_replace(["\r", "\n"], " ", implode(" / ", array_slice($lines, 0, 6))), 0, 600) . PHP_EOL;
           '
           exit 0
+
+      - name: Database evidence (read-only, counts only)
+        run: |
+          set +e
+          q() { psql "$DB_URL" -Atqc "$1" 2>&1 | head -c 200 | tr '\n' ' '; }
+          files=$(ls database/migrations/*.php | wc -l)
+          ran=$(q "select count(*) from migrations")
+          tables=$(q "select count(*) from information_schema.tables where table_schema='public'")
+          sessions=$(q "select to_regclass('public.sessions') is not null")
+          cache=$(q "select to_regclass('public.cache') is not null")
+          admins=$(q "select count(*) from super_admins")
+          demo=$(q "select count(*) from super_admins where email='admin@example.com'")
+          roles=$(q "select count(*) from model_has_roles where team_id=0")
+          plans=$(q "select count(*) from subscription_plans where name='Starter'")
+          countries=$(q "select count(*) from countries")
+          echo "::notice title=Database evidence (counts only)::migration_files=$files migrations_recorded=$ran tables=$tables sessions_table_exists=$sessions cache_table_exists=$cache super_admins=$admins demo_admin=$demo super_admin_role_rows_team0=$roles starter_plans=$plans countries=$countries"
+          exit 0
