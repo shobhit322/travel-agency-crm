@@ -70,7 +70,12 @@ class DatabaseSeeder extends Seeder
         );
         app(TenantContext::class)->clear();
 
-        $this->call([PermissionSeeder::class, EmailTemplateSeeder::class, DemoCatalogSeeder::class]);
+        $this->call([
+            PermissionSeeder::class,
+            EmailTemplateSeeder::class,
+            DemoCatalogSeeder::class,
+            DemoAccountsSeeder::class,
+        ]);
 
         // Bookings, invoices, leads, etc. are for clicking around locally; tests build their own.
         if (! app()->runningUnitTests()) {
