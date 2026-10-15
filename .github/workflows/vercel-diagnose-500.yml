@@ -1,0 +1,92 @@
+name: Vercel diagnose GET / 500
+
+# Diagnostic only. Builds Dockerfile.vercel and requests "GET /" (the real homepage request, which
+# starts a database-backed session and renders a view; /up does neither) against a throwaway
+# PostgreSQL, in the configurations that could produce a production 500. Results are written as
+# annotations. Uses no secrets and never deploys. Runs only when this file changes.
+
+on:
+  push:
+    branches: [vercel-deploy]
+    paths: ['.github/workflows/vercel-diagnose-500.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  homepage:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: ci
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-only-throwaway
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ci" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: ci-only-throwaway
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Build Dockerfile.vercel
+        run: docker build -f Dockerfile.vercel -t travel-vercel .
+
+      - name: Request GET / in each configuration
+        run: |
+          set +e
+          KEY="base64:$(openssl rand -base64 32)"
+          URL="postgresql://ci:ci-only-throwaway@127.0.0.1:5432/ci?sslmode=disable"
+          PLACEHOLDER="Your Neon PostgreSQL connection string - not available until you create the database"
+
+          reset_db() { psql -h 127.0.0.1 -U ci -d ci -qc "drop schema public cascade; create schema public;" >/dev/null 2>&1; }
+
+          # run_case <label> <docker -e args...>
+          run_case() {
+            label="$1"; shift
+            docker rm -f app >/dev/null 2>&1
+            docker run -d --name app --network host -e PORT=8081 -e APP_URL=https://example.test "$@" travel-vercel >/dev/null
+            for i in $(seq 1 30); do
+              c=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8081/up)
+              [ "$c" = "200" ] && break
+              sleep 1
+            done
+            code=$(curl -s -o /dev/null -m 60 -w '%{http_code}' http://127.0.0.1:8081/)
+            sleep 1
+            err=$(docker logs app 2>&1 | grep -m1 -E 'production\.(ERROR|CRITICAL)|Fatal error|Uncaught' | cut -c1-380)
+            echo "::notice title=GET / [$label]::HTTP $code | ${err:-no error line in container logs}"
+          }
+
+          # Container identity and disk, as the app sees them.
+          docker rm -f app >/dev/null 2>&1
+          docker run -d --name app --network host -e PORT=8081 -e APP_KEY="$KEY" travel-vercel >/dev/null
+          sleep 4
+          fsinfo=$(docker exec app sh -c 'echo "user=$(id -un) views_writable=$(touch storage/framework/views/.w 2>/dev/null && echo yes || echo NO) cache_writable=$(touch bootstrap/cache/.w 2>/dev/null && echo yes || echo NO) logs_writable=$(touch storage/logs/.w 2>/dev/null && echo yes || echo NO)"')
+          echo "::notice title=Container identity and disk::$fsinfo"
+
+          # 1. APP_KEY and DB are set, but migrations were never run (the likely production state).
+          reset_db
+          run_case "keys+db set, NOT migrated" -e APP_KEY="$KEY" -e DB_CONNECTION=pgsql -e DB_URL="$URL"
+
+          # Migrate once, then test the healthy case and the broken-variable cases.
+          docker run --rm --network host -e APP_KEY="$KEY" -e DB_CONNECTION=pgsql -e DB_URL="$URL" travel-vercel php artisan migrate --force >/dev/null 2>&1
+          echo "::notice title=Migrate::exit code $?"
+
+          # 2. Everything configured and migrated: should be 200.
+          run_case "keys+db set, migrated" -e APP_KEY="$KEY" -e DB_CONNECTION=pgsql -e DB_URL="$URL"
+
+          # 3. APP_KEY missing.
+          run_case "APP_KEY missing, migrated" -e DB_CONNECTION=pgsql -e DB_URL="$URL"
+
+          # 4. DB_URL holds placeholder text instead of a connection string.
+          run_case "DB_URL is placeholder text" -e APP_KEY="$KEY" -e DB_CONNECTION=pgsql -e DB_URL="$PLACEHOLDER"
+
+          # 5. DB_URL missing entirely (falls back to DB_HOST=127.0.0.1 defaults).
+          run_case "DB_URL missing" -e APP_KEY="$KEY" -e DB_CONNECTION=pgsql
+
+          docker rm -f app >/dev/null 2>&1
+          exit 0
