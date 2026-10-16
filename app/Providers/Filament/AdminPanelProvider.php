@@ -30,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->defaultThemeMode(\Filament\Enums\ThemeMode::Dark)
             ->id('admin')
             ->path('admin')
             ->authGuard('super_admin')

@@ -11,15 +11,21 @@
 }
 .fi-simple-layout,
 .fi-simple-main,
+.fi-simple-main-ctn,
+section.fi-simple-main,
+div.fi-simple-layout,
 .fi-card {
     background-color: transparent !important;
     background: transparent !important;
     box-shadow: none !important;
 }
-.fi-input-wrp {
+.fi-input-wrp,
+input[type="email"],
+input[type="password"] {
     background-color: rgba(255, 255, 255, 0.08) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-}
-.fi-input-wrp input {
     color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
 }
