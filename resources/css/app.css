@@ -9,3 +9,17 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+.fi-simple-layout,
+.fi-simple-main,
+.fi-card {
+    background-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.fi-input-wrp {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+.fi-input-wrp input {
+    color: #ffffff !important;
+}
