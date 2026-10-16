@@ -6,40 +6,40 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Confirm email change — {{ $senderName }}</title>
     <style>
-        :root { color-scheme: light; }
+        :root { color-scheme: dark; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f4f5f7;
-            color: #1f2430;
+            background: var(--bg);
+            color: var(--ink);
             margin: 0;
             padding: 32px 16px;
         }
         .card {
             max-width: 480px;
             margin: 0 auto;
-            background: #fff;
+            background: var(--bg-card);
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             padding: 32px;
         }
-        .sender { color: #6b7280; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+        .sender { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
         h1 { font-size: 22px; margin: 0 0 16px; }
         p { font-size: 15px; line-height: 1.6; margin: 0 0 16px; }
-        a { color: #1f2430; font-weight: 600; }
+        a { color: var(--accent); font-weight: 600; }
         button {
             width: 100%;
             padding: 12px 16px;
             border: 0;
             border-radius: 8px;
-            background: #1f2430;
-            color: #fff;
+            background: var(--bg-card);
+            color: var(--ink);
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
         }
         .alert { padding: 12px 14px; border-radius: 8px; font-size: 14px; }
-        .alert.success { background: #dcfce7; color: #15803d; }
-        .alert.danger { background: #fee2e2; color: #b91c1c; }
+        .alert.success { background: var(--bg-success); color: var(--success); }
+        .alert.danger { background: var(--bg-danger); color: var(--error); }
     </style>
 </head>
 <body>

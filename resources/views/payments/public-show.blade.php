@@ -20,12 +20,12 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Pay invoice {{ $invoice->invoice_no }} — {{ $tenant?->name }}</title>
     <style>
-        :root { color-scheme: light; --accent: {{ $accentColor }}; }
+        :root { color-scheme: dark; --accent: {{ $accentColor }}; }
         * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f4f5f7;
-            color: #1f2430;
+            background: var(--bg);
+            color: var(--ink);
             margin: 0;
             padding: 32px 16px;
             line-height: 1.45;
@@ -33,7 +33,7 @@
         .card {
             max-width: 640px;
             margin: 0 auto;
-            background: #fff;
+            background: var(--bg-card);
             border-radius: 14px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             overflow: hidden;

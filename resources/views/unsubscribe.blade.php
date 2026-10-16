@@ -6,18 +6,18 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Unsubscribe — {{ $senderName }}</title>
     <style>
-        :root { color-scheme: light; }
+        :root { color-scheme: dark; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f4f5f7;
-            color: #1f2430;
+            background: var(--bg);
+            color: var(--ink);
             margin: 0;
             padding: 32px 16px;
         }
         .card {
             max-width: 480px;
             margin: 0 auto;
-            background: #fff;
+            background: var(--bg-card);
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             padding: 32px;
